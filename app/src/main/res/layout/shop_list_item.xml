@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="clickListener"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="shopDetails"
+            type="com.example.ekiaart.domain.ShopDetails" />
+    </data>
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{clickListener}"
+        android:elevation="7dp"
+        android:padding="10dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/shop_image"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_margin="12dp"
+                imageFromUrl="@{shopDetails.imageURL}" />
+
+            <TextView
+                android:id="@+id/shop_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                app:layout_constraintBottom_toTopOf="@id/shop_caption"
+                app:layout_constraintStart_toEndOf="@id/shop_image"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="@{shopDetails.shopName}" />
+
+            <TextView
+                android:id="@+id/shop_caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                app:layout_constraintBottom_toTopOf="@id/shop_ratingbar"
+                app:layout_constraintStart_toEndOf="@id/shop_image"
+                app:layout_constraintTop_toBottomOf="@id/shop_name"
+                android:text="@{shopDetails.caption}" />
+
+            <RatingBar
+                android:id="@+id/shop_ratingbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/shop_caption"
+                app:layout_constraintStart_toEndOf="@id/shop_image"
+                app:layout_constraintBottom_toBottomOf="parent"
+                style="@style/Widget.AppCompat.RatingBar.Small"
+                android:layout_marginStart="10dp"
+                android:rating="@{shopDetails.avgRating}" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+</layout>

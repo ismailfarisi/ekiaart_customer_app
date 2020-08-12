@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav"
+    app:startDestination="@id/shopListFragment">
+
+    <fragment
+        android:id="@+id/shopListFragment"
+        android:name="com.example.ekiaart.ui.home.ShopListFragment"
+        android:label="fragment_shop_list"
+        tools:layout="@layout/fragment_shop_list">
+        <action
+            android:id="@+id/action_shopListFragment_to_productListFragment"
+            app:destination="@id/productListFragment" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/productListFragment"
+        android:name="com.example.ekiaart.ui.home.ProductListFragment"
+        android:label="product_list_fragment"
+        tools:layout="@layout/product_list_fragment">
+        <action
+            android:id="@+id/action_productListFragment_to_orderFragment"
+            app:destination="@id/orderFragment" />
+        <action
+            android:id="@+id/action_productListFragment_to_orderQuantityFragment"
+            app:destination="@id/orderQuantityFragment" />
+        <argument
+            android:name="shopParcelable"
+            app:argType="com.example.ekiaart.domain.ShopParcelable" />
+    </fragment>
+    <fragment
+        android:id="@+id/orderFragment"
+        android:name="com.example.ekiaart.ui.home.OrderFragment"
+        android:label="order_fragment"
+        tools:layout="@layout/order_fragment">
+        <argument
+            android:name="productList"
+            app:argType="com.example.ekiaart.domain.ProductList" />
+    </fragment>
+    <dialog
+        android:id="@+id/orderQuantityFragment"
+        android:name="com.example.ekiaart.ui.home.ProductQuantityDialogFragment"
+        android:label="order_quantity_fragment"
+        tools:layout="@layout/order_quantity_fragment">
+        <action
+            android:id="@+id/action_orderQuantityFragment_to_productListFragment"
+            app:destination="@id/productListFragment" />
+        <argument
+            android:name="productParcelable"
+            app:argType="com.example.ekiaart.domain.ProductParcelable" />
+    </dialog>
+</navigation>
