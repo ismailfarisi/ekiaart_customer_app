@@ -14,6 +14,7 @@ import com.example.ekiaart.databinding.ActivityAuthBinding
 import com.example.ekiaart.domain.Result
 import com.example.ekiaart.ui.home.MainActivity
 import com.example.ekiaart.util.RC_SIGN_IN
+import com.example.ekiaart.util.TAG
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -21,8 +22,6 @@ import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-
-private const val TAG = "AuthActivity"
 
 class AuthActivity : AppCompatActivity() {
 
@@ -60,6 +59,7 @@ class AuthActivity : AppCompatActivity() {
 
 
     private fun signIn() {
+        Log.d(TAG, "signIn: button pressed")
         val signInIntent = mGoogleSignInClient.signInIntent
         startActivityForResult(
             signInIntent,
@@ -94,9 +94,13 @@ class AuthActivity : AppCompatActivity() {
                 when (result) {
                     is Result.Success -> {
                         binding.progressBar.visibility = View.GONE
-                        Intent(this@AuthActivity, MainActivity::class.java).apply {
-                            startActivity(this)
-                            finish()
+                        if (result.data) {
+                            Intent(this@AuthActivity, MainActivity::class.java).apply {
+                                startActivity(this)
+                                finish()
+                            }
+                        } else {
+
                         }
                     }
                     is Result.Error -> {

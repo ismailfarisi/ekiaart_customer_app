@@ -10,7 +10,7 @@ class AuthActivityViewModel(private val repository: FirebaseAuthentication) : Vi
 
 
     @ExperimentalCoroutinesApi
-    suspend fun firebaseAuth(idToken: String): Flow<Result<Unit>> =
+    suspend fun firebaseAuth(idToken: String): Flow<Result<Boolean>> =
         repository.firebaseAuthWithGoogle(idToken)
 
 

@@ -4,10 +4,6 @@ import androidx.lifecycle.ViewModel
 import com.example.ekiaart.data.FirestoreData
 import com.example.ekiaart.data.MainRepository
 import com.example.ekiaart.domain.NewOrderToShopDocument
-import com.example.ekiaart.domain.Result
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 
 class OrderViewModel : ViewModel() {
 
@@ -17,15 +13,10 @@ class OrderViewModel : ViewModel() {
         mainRepository = FirestoreData()
     }
 
-    fun uploadNewOrder(
+    suspend fun uploadNewOrder(
         newOrderToShopDocument: NewOrderToShopDocument,
         shopId: String
-    ): Flow<Result<Unit>> = flow {
-        try {
-            emitAll(mainRepository.uploadNewOrder(newOrderToShopDocument, shopId))
-        } catch (e: Exception) {
-            emit(Result.Error(e))
-        }
-    }
+    ) = mainRepository.uploadNewOrder(newOrderToShopDocument, shopId)
+
 
 }

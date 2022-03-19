@@ -1,6 +1,7 @@
 package com.example.ekiaart.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import com.example.ekiaart.adapters.ProductsAdapter
 import com.example.ekiaart.databinding.ProductListFragmentBinding
 import com.example.ekiaart.domain.ProductList
 import com.example.ekiaart.domain.Result
+import com.example.ekiaart.util.TAG
 import kotlinx.coroutines.flow.collect
 
 class ProductListFragment : Fragment() {
@@ -69,6 +71,7 @@ class ProductListFragment : Fragment() {
 
     private fun subscribeUI(adapter: ProductsAdapter, shopId: String) {
         lifecycleScope.launchWhenCreated {
+            Log.d(TAG, "subscribeUI: productlist")
             viewModel.getProducts(shopId).collect { result ->
                 when (result) {
                     is Result.Success -> {

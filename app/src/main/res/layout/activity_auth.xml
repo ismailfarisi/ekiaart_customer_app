@@ -27,4 +27,5 @@
         app:layout_constraintEnd_toEndOf="@+id/googleSignInBtn"
         app:layout_constraintStart_toStartOf="@+id/googleSignInBtn"
         app:layout_constraintTop_toTopOf="@+id/googleSignInBtn" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

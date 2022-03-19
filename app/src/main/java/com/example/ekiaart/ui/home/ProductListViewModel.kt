@@ -4,9 +4,6 @@ import androidx.lifecycle.ViewModel
 import com.example.ekiaart.data.FirestoreData
 import com.example.ekiaart.data.MainRepository
 import com.example.ekiaart.domain.Product
-import com.example.ekiaart.domain.ProductDetails
-import com.example.ekiaart.domain.Result
-import kotlinx.coroutines.flow.Flow
 
 
 class ProductListViewModel : ViewModel() {
@@ -23,8 +20,7 @@ class ProductListViewModel : ViewModel() {
         _products.add(product)
     }
 
-    suspend fun getProducts(shopId: String): Flow<Result<List<ProductDetails>>> =
-        repository.getProducts(shopId)
+    suspend fun getProducts(shopId: String) = repository.getProducts(shopId)
 
 
 }

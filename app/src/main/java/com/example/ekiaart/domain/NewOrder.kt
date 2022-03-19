@@ -22,7 +22,9 @@ data class NewOrderToShopDocument(
     var timestamp: Timestamp? = null,
     var orderId: String? = null,
     var userId: String? = null,
-    val location: GeoPoint? = null
+    var userName: String? = null,
+    val location: GeoPoint? = null,
+    val orderStatus: Int = 0
 )
 
 @Parcelize

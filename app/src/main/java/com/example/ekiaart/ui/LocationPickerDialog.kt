@@ -1,5 +1,7 @@
 package com.example.ekiaart.ui
 
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
@@ -12,14 +14,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.DialogFragment
-import com.example.ekiaart.R
+import com.example.ekiaart.databinding.FragmentLocationPickerDialogBinding
+import com.example.ekiaart.util.GPS_REQUEST
+import com.example.ekiaart.util.GpsUtils
 import com.example.ekiaart.util.TAG
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import com.google.android.gms.location.*
 import java.util.*
 
 
@@ -31,7 +30,10 @@ class LocationPickerDialog : DialogFragment() {
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
     private lateinit var listener: LocationDialogListener
+    private lateinit var binding: FragmentLocationPickerDialogBinding
+    private var isGps = false
 
 
     override fun onCreateView(
@@ -39,18 +41,43 @@ class LocationPickerDialog : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         listener = targetFragment as LocationDialogListener
-        return inflater.inflate(R.layout.fragment_location_picker_dialog, container, false)
+        binding = FragmentLocationPickerDialogBinding.inflate(inflater, container, false)
+        GpsUtils(requireContext()).turnGPSOn(object : GpsUtils.onGpsListener {
+            override fun gpsStatus(isGPSEnable: Boolean) {
+                isGps = isGPSEnable
+            }
+        })
+        return binding.root
     }
 
-    @ExperimentalCoroutinesApi
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        locationRequest = LocationRequest()
+        locationRequest = LocationRequest.create()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        updateGPS()
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                if (locationResult == null) {
+                    return
+                }
+                for (location in locationResult.locations) {
+                    Log.d(TAG, "onLocationResult: $location")
+                    getAddressFromCoOrdinates(location)
+                    if (fusedLocationProviderClient != null) {
+                        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+                        Log.d(TAG, "onLocationResult: updates removed ")
+                    }
+                }
+
+            }
+        }
+        binding.useCurrentLocationBtn.setOnClickListener {
+            updateGPS()
+        }
+
     }
 
-    @ExperimentalCoroutinesApi
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -72,8 +99,7 @@ class LocationPickerDialog : DialogFragment() {
         }
     }
 
-    @ExperimentalCoroutinesApi
-    private fun updateGPS(): Flow<LocationData> = callbackFlow {
+    private fun updateGPS() {
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
         if (ActivityCompat.checkSelfPermission(
@@ -81,11 +107,20 @@ class LocationPickerDialog : DialogFragment() {
                 android.Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener {
-                val post = Geocoder(requireContext(), Locale.getDefault())
-                val address = post.getFromLocation(it.latitude, it.longitude, 1)
-                val postcode = address[address.lastIndex].postalCode
-                offer(LocationData(it, postcode))
+            Log.d(TAG, "updateGPS: permission is granted")
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    getAddressFromCoOrdinates(location)
+                    Log.d(TAG, "updateGPS: location is $location")
+                    fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+                } else {
+                    fusedLocationProviderClient.requestLocationUpdates(
+                        locationRequest,
+                        locationCallback,
+                        null
+                    )
+                }
+
             }
         } else {
             Log.d(TAG, "updateGPS: no permission")
@@ -98,6 +133,12 @@ class LocationPickerDialog : DialogFragment() {
         }
     }
 
+    private fun getAddressFromCoOrdinates(location: Location) {
+        val post = Geocoder(requireContext(), Locale.getDefault())
+        val address = post.getFromLocation(location.latitude, location.longitude, 1)
+        val postcode = address[address.lastIndex].postalCode
+    }
+
     interface LocationDialogListener {
         fun onDialogPositiveClick(dialog: DialogFragment)
         fun onDialogNegativeClick(dialog: DialogFragment)
@@ -107,6 +148,15 @@ class LocationPickerDialog : DialogFragment() {
         val location: Location,
         val postCode: String
     )
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == GPS_REQUEST) {
+                isGps = true; // flag maintain before get location
+            }
+        }
+    }
 
 
 }

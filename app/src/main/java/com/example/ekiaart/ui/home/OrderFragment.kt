@@ -8,13 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.ekiaart.adapters.OrderedProductAdapter
 import com.example.ekiaart.databinding.OrderFragmentBinding
 import com.example.ekiaart.domain.NewOrderToShopDocument
 import com.example.ekiaart.domain.Product
+import com.example.ekiaart.domain.Result
 import com.example.ekiaart.util.TAG
+import kotlinx.coroutines.flow.collect
 
 class OrderFragment : Fragment() {
 
@@ -38,14 +41,13 @@ class OrderFragment : Fragment() {
         val shopId = args.productList.shopId
         val shopName = args.productList.shopName
         binding.shopNameTxtview.text = shopName
-        try {
-            userId = activity?.intent?.getStringExtra("uid")
-            binding.placeOrderBtn.setOnClickListener {
-                placeOrder(userId!!, shopId, productList)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "onViewCreated: no intent uid", e)
+
+        userId = "sdscsducbn"
+        binding.placeOrderBtn.setOnClickListener {
+            Log.d(TAG, "onViewCreated: button pressed")
+            placeOrder(userId, shopId, productList)
         }
+
 
         val adapter = OrderedProductAdapter()
         binding.orderedProductRecyclerview.also {
@@ -67,8 +69,15 @@ class OrderFragment : Fragment() {
     }
 
     private fun placeOrder(userID: String, shopId: String, productList: List<Product>) {
-        val newOrder = NewOrderToShopDocument(products = productList, userId = userID)
-        viewModel.uploadNewOrder(newOrder, shopId)
+        val newOrder = NewOrderToShopDocument(products = productList)
+        lifecycleScope.launchWhenCreated {
+            viewModel.uploadNewOrder(newOrder, shopId).collect { result ->
+                when (result) {
+                    is Result.Success -> Log.d(TAG, "placeOrder: success")
+                }
+            }
+        }
+
     }
 
 

@@ -10,6 +10,7 @@ import com.example.ekiaart.domain.ShopDetails
 import com.example.ekiaart.util.ORDER_DETAILS
 import com.example.ekiaart.util.PRODUCT_DETAILS
 import com.example.ekiaart.util.SHOP_DETAILS
+import com.example.ekiaart.util.TAG
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
@@ -21,9 +22,6 @@ import kotlinx.coroutines.flow.callbackFlow
 
 class FirestoreData : MainRepository {
 
-    companion object {
-        private const val TAG = "FirestoreData"
-    }
 
     private val firestore = FirebaseFirestore.getInstance()
 
@@ -32,13 +30,14 @@ class FirestoreData : MainRepository {
         Log.d(TAG, "getShops: started")
         val liveData = MutableLiveData<List<ShopDetails>>()
         try {
-            firestore.collection(SHOP_DETAILS).get().addOnSuccessListener {
-                val list = mutableListOf<ShopDetails>()
-                for (document in it) {
-                    list.add(document.toObject())
+            firestore.collection(SHOP_DETAILS).whereEqualTo("status", true).get()
+                .addOnSuccessListener {
+                    val list = mutableListOf<ShopDetails>()
+                    for (document in it) {
+                        list.add(document.toObject())
+                    }
+                    liveData.postValue(list)
                 }
-                liveData.postValue(list)
-            }
         } catch (e: Exception) {
         }
         return liveData
@@ -48,14 +47,17 @@ class FirestoreData : MainRepository {
     override suspend fun getProducts(shopId: String): Flow<Result<List<ProductDetails>>> =
         callbackFlow {
             offer(Result.Loading)
+            Log.d(TAG, "getProducts: started uid :$shopId")
             try {
                 firestore.collection(SHOP_DETAILS).document(shopId).collection(PRODUCT_DETAILS)
-                    .get().addOnSuccessListener { snapshot ->
+                    .get()
+                    .addOnSuccessListener { snapshot ->
                         try {
                             val mutableList = mutableListOf<ProductDetails>()
                             for (product in snapshot) {
                                 val data = product.toObject<ProductDetails>()
                                 mutableList.add(data)
+                                Log.d(TAG, "getProducts: $data")
                             }
                             offer(Result.Success(mutableList))
                         } catch (e: Exception) {
@@ -63,9 +65,11 @@ class FirestoreData : MainRepository {
                         }
                     }.addOnFailureListener { e ->
                         offer(Result.Error(e))
+                        Log.e(TAG, "getProducts: failed", e)
                     }
             } catch (e: Exception) {
                 offer(Result.Error(e))
+                Log.e(TAG, "getProducts: failed", e)
             }
             awaitClose()
         }
@@ -75,17 +79,19 @@ class FirestoreData : MainRepository {
         newOrderToShopDocument: NewOrderToShopDocument,
         shopId: String
     ): Flow<Result<Unit>> = callbackFlow {
-        try {
-            val orderToShopRef =
-                firestore.collection(SHOP_DETAILS).document(shopId).collection(ORDER_DETAILS)
-                    .document()
-            val orderId = orderToShopRef.id
-            val timestamp = Timestamp.now()
-            newOrderToShopDocument.orderId = orderId
-            newOrderToShopDocument.timestamp = timestamp
-        } catch (e: Exception) {
-
+        val orderToShopRef =
+            firestore.collection(SHOP_DETAILS).document(shopId).collection(ORDER_DETAILS).document()
+        val orderId = orderToShopRef.id
+        val timestamp = Timestamp.now()
+        newOrderToShopDocument.orderId = orderId
+        newOrderToShopDocument.timestamp = timestamp
+        orderToShopRef.set(newOrderToShopDocument).addOnSuccessListener {
+            Log.d(TAG, "uploadNewOrder: success")
+        }.addOnFailureListener {
+            Log.e(TAG, "uploadNewOrder: failed", it)
         }
+
+        awaitClose()
 
     }
 

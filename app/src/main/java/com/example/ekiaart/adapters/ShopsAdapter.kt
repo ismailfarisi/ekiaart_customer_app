@@ -1,5 +1,6 @@
 package com.example.ekiaart.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.navigation.findNavController
@@ -10,6 +11,7 @@ import com.example.ekiaart.databinding.ShopListItemBinding
 import com.example.ekiaart.domain.ShopDetails
 import com.example.ekiaart.domain.ShopParcelable
 import com.example.ekiaart.ui.home.ShopListFragmentDirections
+import com.example.ekiaart.util.TAG
 
 class ShopsAdapter : ListAdapter<ShopDetails, RecyclerView.ViewHolder>(ShopsDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -34,6 +36,7 @@ class ShopsAdapter : ListAdapter<ShopDetails, RecyclerView.ViewHolder>(ShopsDiff
             binding.setClickListener { view ->
                 binding.shopDetails?.let { shopDetails ->
                     val shopParcelable = ShopParcelable(shopDetails.shopId, shopDetails.shopName)
+                    Log.d(TAG, ": shopParcellable : $shopParcelable")
                     val action =
                         ShopListFragmentDirections.actionShopListFragmentToProductListFragment(
                             shopParcelable
