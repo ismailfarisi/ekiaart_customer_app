@@ -12,11 +12,12 @@ import com.google.android.gms.location.*
 
 
 class GpsUtils(context: Context) {
-    private val context: Context
-    private val mSettingsClient: SettingsClient
+    private val context: Context = context
+    private val mSettingsClient: SettingsClient = LocationServices.getSettingsClient(context)
     private val mLocationSettingsRequest: LocationSettingsRequest
-    private val locationManager: LocationManager
-    private val locationRequest: LocationRequest
+    private val locationManager: LocationManager =
+        context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    private val locationRequest: LocationRequest = LocationRequest.create()
 
     // method for turn on GPS
     fun turnGPSOn(onGpsListener: onGpsListener?) {
@@ -61,10 +62,6 @@ class GpsUtils(context: Context) {
     }
 
     init {
-        this.context = context
-        locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        mSettingsClient = LocationServices.getSettingsClient(context)
-        locationRequest = LocationRequest.create()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         locationRequest.interval = 10 * 1000.toLong()
         locationRequest.fastestInterval = 2 * 1000.toLong()

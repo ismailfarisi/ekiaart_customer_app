@@ -1,7 +1,7 @@
 package com.example.ekiaart.domain
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 
 data class ProductDetails(

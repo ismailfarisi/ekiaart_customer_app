@@ -7,6 +7,7 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -56,8 +57,10 @@ class LocationPickerDialog : DialogFragment() {
         locationRequest = LocationRequest.create()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                if (locationResult == null) {
+
+
+            override fun onLocationResult(locationResult: LocationResult) {
+                if (locationResult.equals(null)) {
                     return
                 }
                 for (location in locationResult.locations) {
@@ -116,8 +119,8 @@ class LocationPickerDialog : DialogFragment() {
                 } else {
                     fusedLocationProviderClient.requestLocationUpdates(
                         locationRequest,
-                        locationCallback,
-                        null
+                        locationCallback, Looper.getMainLooper()
+
                     )
                 }
 

@@ -69,7 +69,8 @@ class AuthActivity : AppCompatActivity() {
         binding.googleSignInBtn.visibility = View.GONE
     }
 
-    @ExperimentalCoroutinesApi
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RC_SIGN_IN) {
@@ -87,7 +88,7 @@ class AuthActivity : AppCompatActivity() {
 
     }
 
-    @ExperimentalCoroutinesApi
+
     private fun receiveLoginStatus(idToken: String) {
         lifecycleScope.launch {
             viewModel.firebaseAuth(idToken).collect { result ->

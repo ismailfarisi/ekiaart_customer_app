@@ -43,7 +43,8 @@ class FirestoreData : MainRepository {
         return liveData
     }
 
-    @ExperimentalCoroutinesApi
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun getProducts(shopId: String): Flow<Result<List<ProductDetails>>> =
         callbackFlow {
             offer(Result.Loading)
@@ -74,7 +75,8 @@ class FirestoreData : MainRepository {
             awaitClose()
         }
 
-    @ExperimentalCoroutinesApi
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun uploadNewOrder(
         newOrderToShopDocument: NewOrderToShopDocument,
         shopId: String
